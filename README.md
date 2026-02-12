@@ -7,6 +7,7 @@ Application de chat avec intelligence artificielle utilisant Django REST Framewo
 ### Backend
 - **Django 4.2.27** - Framework web Python
 - **Django REST Framework** - API REST
+- **SimpleJWT** - Authentification JWT
 - **SQLite** - Base de données
 
 ### Frontend
@@ -58,7 +59,7 @@ cocoja/
 cd cocoja
 
 # Installer les dépendances Python
-pip install django djangorestframework django-cors-headers
+pip install django djangorestframework django-cors-headers djangorestframework-simplejwt
 
 # Appliquer les migrations
 python3 manage.py migrate
@@ -116,6 +117,17 @@ npm run dev
 - **POST** `/api/chat/ask/`
   - Body: `{ "question": "Votre question" }`
   - Response: `{ "answer": "Réponse du modèle" }`
+
+### Auth API
+
+- **GET** `/api/auth/csrf/`
+- **POST** `/api/auth/register/`
+- **POST** `/api/auth/login/`
+- **POST** `/api/auth/logout/`
+- **GET** `/api/auth/me/`
+- **POST** `/api/auth/jwt/create/`
+- **POST** `/api/auth/jwt/refresh/`
+- **POST** `/api/auth/jwt/verify/`
 
 ## 🎨 Fonctionnalités
 

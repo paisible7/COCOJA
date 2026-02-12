@@ -4,19 +4,19 @@
 }
 
 @theme {
-  --color-primary: #6366f1;
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-600: #4f46e5;
-  --color-background-light: #f6f6f8;
-  --color-background-dark: #0f1115;
+  --color-primary: #22c55e;
+  --color-primary-50: #ecfdf3;
+  --color-primary-100: #d1fae5;
+  --color-primary-600: #16a34a;
+  --color-background-light: #f7f8f6;
+  --color-background-dark: #0b0f14;
   --color-surface-light: #ffffff;
-  --color-surface-dark: #181b21;
-  --color-surface-hover: #22262e;
-  --color-border-light: #e5e7eb;
-  --color-border-dark: #272a30;
-  --color-bubble-user: #272a30;
-  --color-bubble-ai: #181b21;
+  --color-surface-dark: #141a20;
+  --color-surface-hover: #1d252d;
+  --color-border-light: #e6ebe7;
+  --color-border-dark: #25303a;
+  --color-bubble-user: #1f2630;
+  --color-bubble-ai: #141a20;
 
   --font-family-display: Inter, sans-serif;
 
@@ -66,6 +66,11 @@
 
 html {
   font-family: var(--font-family-display);
+}
+
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-all;
 }
 
 body {

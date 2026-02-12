@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useChatStore } from '@/stores/chat'
+import { useAuthStore } from '@/stores/auth'
 import ChatHistory from './ChatHistory.vue'
 import UserProfile from './UserProfile.vue'
 
 const chatStore = useChatStore()
+const authStore = useAuthStore()
 
 function handleNewChat() {
-  chatStore.createNewChat()
+  chatStore.createNewChat(authStore.isAuthenticated)
 }
 </script>
 
@@ -25,7 +27,7 @@ function handleNewChat() {
         >
           <span class="iconify hugeicons--add-01 text-sm"></span>
         </span>
-        <span class="text-sm font-medium text-gray-200">Nouveau chat</span>
+        <span class="text-sm font-semibold text-gray-200">Nouveau chat</span>
       </button>
     </div>
 

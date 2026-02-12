@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useChatStore } from '@/stores/chat'
+import { useAuthStore } from '@/stores/auth'
 
 const chatStore = useChatStore()
+const authStore = useAuthStore()
 
 function handleChatClick(chatId: string) {
-  chatStore.switchToChat(chatId)
+  chatStore.switchToChat(chatId, authStore.isAuthenticated)
 }
 
 function handleDeleteChat(chatId: string) {
   if (confirm('Supprimer cette conversation ?')) {
-    chatStore.deleteChat(chatId)
+    chatStore.deleteChat(chatId, authStore.isAuthenticated)
   }
 }
 
@@ -25,7 +27,7 @@ const currentChatId = computed(() => chatStore.currentChatId)
     </div>
 
     <div v-for="(chats, period) in groupedChats" :key="period">
-      <h3 class="px-3 text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+      <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
         {{ period }}
       </h3>
       <ul class="space-y-1">

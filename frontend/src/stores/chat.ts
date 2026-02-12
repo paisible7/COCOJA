@@ -20,6 +20,7 @@ export const useChatStore = defineStore('chat', () => {
   const currentChatId = ref<string | null>(null)
   const userProfile = ref<UserProfile>(DEFAULT_USER)
   const isTyping = ref(false)
+  const guestPostCount = ref(0)
 
   // Computed
   const currentChat = computed(() => {
@@ -67,7 +68,14 @@ export const useChatStore = defineStore('chat', () => {
   })
 
   // Actions
-  function loadFromStorage() {
+  function loadFromStorage(isAuthenticated: boolean) {
+    if (!isAuthenticated) {
+      conversations.value = []
+      currentChatId.value = null
+      guestPostCount.value = 0
+      return
+    }
+
     try {
       const storedConversations = localStorage.getItem(STORAGE_KEYS.conversations)
       if (storedConversations) {
@@ -88,11 +96,13 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
-  function saveConversations() {
+  function saveConversations(isAuthenticated: boolean) {
+    if (!isAuthenticated) return
     localStorage.setItem(STORAGE_KEYS.conversations, JSON.stringify(conversations.value))
   }
 
-  function saveCurrentChatId() {
+  function saveCurrentChatId(isAuthenticated: boolean) {
+    if (!isAuthenticated) return
     if (currentChatId.value) {
       localStorage.setItem(STORAGE_KEYS.currentChatId, currentChatId.value)
     }
@@ -102,7 +112,7 @@ export const useChatStore = defineStore('chat', () => {
     localStorage.setItem(STORAGE_KEYS.userProfile, JSON.stringify(userProfile.value))
   }
 
-  function createNewChat() {
+  function createNewChat(isAuthenticated: boolean) {
     const newChat: Conversation = {
       id: Date.now().toString(),
       title: 'Nouvelle conversation',
@@ -112,37 +122,37 @@ export const useChatStore = defineStore('chat', () => {
     }
 
     conversations.value.unshift(newChat)
-    saveConversations()
-    switchToChat(newChat.id)
+    saveConversations(isAuthenticated)
+    switchToChat(newChat.id, isAuthenticated)
   }
 
-  function switchToChat(chatId: string) {
+  function switchToChat(chatId: string, isAuthenticated: boolean) {
     currentChatId.value = chatId
-    saveCurrentChatId()
+    saveCurrentChatId(isAuthenticated)
   }
 
-  function deleteChat(chatId: string) {
+  function deleteChat(chatId: string, isAuthenticated: boolean) {
     conversations.value = conversations.value.filter((c) => c.id !== chatId)
-    saveConversations()
+    saveConversations(isAuthenticated)
 
     if (currentChatId.value === chatId) {
       currentChatId.value = conversations.value[0]?.id || null
-      saveCurrentChatId()
+      saveCurrentChatId(isAuthenticated)
     }
   }
 
-  function updateChatTitle(chatId: string, title: string) {
+  function updateChatTitle(chatId: string, title: string, isAuthenticated: boolean) {
     const chat = conversations.value.find((c) => c.id === chatId)
     if (chat) {
       chat.title = title
       chat.updatedAt = new Date().toISOString()
-      saveConversations()
+      saveConversations(isAuthenticated)
     }
   }
 
-  function addMessage(text: string, role: 'user' | 'assistant' = 'user'): Message {
+  function addMessage(text: string, role: 'user' | 'assistant' = 'user', isAuthenticated: boolean): Message {
     if (!currentChatId.value) {
-      createNewChat()
+      createNewChat(isAuthenticated)
     }
 
     const chat = currentChat.value
@@ -165,17 +175,26 @@ export const useChatStore = defineStore('chat', () => {
       chat.title = text.substring(0, 50) + (text.length > 50 ? '...' : '')
     }
 
-    saveConversations()
+    saveConversations(isAuthenticated)
     return message
+  }
+
+  function canGuestPost(): boolean {
+    return guestPostCount.value < 5
+  }
+
+  function incrementGuestPostCount() {
+    guestPostCount.value++
+  }
+
+  function getGuestPostCount(): number {
+    return guestPostCount.value
   }
 
   function updateUserProfile(profile: Partial<UserProfile>) {
     userProfile.value = { ...userProfile.value, ...profile }
     saveUserProfile()
   }
-
-  // Initialiser au chargement du store
-  loadFromStorage()
 
   return {
     // État
@@ -193,5 +212,8 @@ export const useChatStore = defineStore('chat', () => {
     addMessage,
     updateUserProfile,
     loadFromStorage,
+    canGuestPost,
+    incrementGuestPostCount,
+    getGuestPostCount,
   }
 })

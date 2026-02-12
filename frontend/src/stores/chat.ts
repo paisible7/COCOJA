@@ -43,11 +43,7 @@ export const useChatStore = defineStore('chat', () => {
 
     conversations.value.forEach((chat) => {
       const chatDate = new Date(chat.updatedAt)
-      const chatDay = new Date(
-        chatDate.getFullYear(),
-        chatDate.getMonth(),
-        chatDate.getDate()
-      )
+      const chatDay = new Date(chatDate.getFullYear(), chatDate.getMonth(), chatDate.getDate())
 
       if (chatDay.getTime() === today.getTime()) {
         groups["Aujourd'hui"]!.push(chat)

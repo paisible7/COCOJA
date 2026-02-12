@@ -34,11 +34,14 @@ function resetHeight() {
   }
 }
 
-watch(() => props.modelValue, (newValue) => {
-  if (!newValue) {
-    resetHeight()
-  }
-})
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (!newValue) {
+      resetHeight()
+    }
+  },
+)
 </script>
 
 <template>

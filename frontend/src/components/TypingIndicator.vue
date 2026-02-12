@@ -13,8 +13,14 @@ const isTyping = defineModel<boolean>('isTyping', { default: false })
     </div>
     <div class="flex items-center gap-1.5 mt-4">
       <span class="w-2 h-2 bg-primary rounded-full animate-bounce"></span>
-      <span class="w-2 h-2 bg-primary rounded-full animate-bounce" style="animation-delay: 0.15s"></span>
-      <span class="w-2 h-2 bg-primary rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
+      <span
+        class="w-2 h-2 bg-primary rounded-full animate-bounce"
+        style="animation-delay: 0.15s"
+      ></span>
+      <span
+        class="w-2 h-2 bg-primary rounded-full animate-bounce"
+        style="animation-delay: 0.3s"
+      ></span>
     </div>
   </div>
 </template>

@@ -8,10 +8,7 @@ defineProps<{
 </script>
 
 <template>
-  <div
-    v-if="message.role === 'user'"
-    class="flex flex-row-reverse gap-4 group message-fade-enter"
-  >
+  <div v-if="message.role === 'user'" class="flex flex-row-reverse gap-4 group message-fade-enter">
     <div class="flex-shrink-0 mt-1">
       <div
         class="w-9 h-9 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 ring-2 ring-background-dark"

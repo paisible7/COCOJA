@@ -19,12 +19,16 @@ const userProfile = computed(() => chatStore.userProfile)
         {{ userProfile.initials }}
       </div>
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-gray-200 truncate group-hover:text-primary transition-colors">
+        <p
+          class="text-sm font-medium text-gray-200 truncate group-hover:text-primary transition-colors"
+        >
           {{ userProfile.name }}
         </p>
         <p class="text-xs text-gray-500 truncate">{{ userProfile.plan }}</p>
       </div>
-      <span class="iconify hugeicons--more-horizontal text-gray-500 group-hover:text-gray-300"></span>
+      <span
+        class="iconify hugeicons--more-horizontal text-gray-500 group-hover:text-gray-300"
+      ></span>
     </button>
   </div>
 </template>

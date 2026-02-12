@@ -35,7 +35,7 @@ const currentChatId = computed(() => chatStore.currentChatId)
               'flex items-center gap-2 px-3 py-2.5 text-sm group cursor-pointer transition-colors',
               chat.id === currentChatId
                 ? 'text-white bg-white/5 rounded-lg border border-white/5 shadow-sm'
-                : 'text-gray-400 hover:bg-white/5 hover:text-gray-200 rounded-lg'
+                : 'text-gray-400 hover:bg-white/5 hover:text-gray-200 rounded-lg',
             ]"
             @click="handleChatClick(chat.id)"
           >
@@ -44,7 +44,7 @@ const currentChatId = computed(() => chatStore.currentChatId)
                 'iconify hugeicons--message-01 text-lg',
                 chat.id === currentChatId
                   ? 'text-primary'
-                  : 'text-gray-600 group-hover:text-gray-400'
+                  : 'text-gray-600 group-hover:text-gray-400',
               ]"
             ></span>
             <span class="truncate flex-1">{{ chat.title }}</span>

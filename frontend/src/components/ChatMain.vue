@@ -18,7 +18,7 @@ function scrollToBottom() {
     nextTick(() => {
       messagesContainer.value?.scrollTo({
         top: messagesContainer.value.scrollHeight,
-        behavior: 'smooth'
+        behavior: 'smooth',
       })
     })
   }
@@ -49,20 +49,24 @@ async function handleSendMessage() {
     await nextTick()
     scrollToBottom()
   } catch (error) {
-    console.error('Erreur lors de l\'envoi du message:', error)
+    console.error("Erreur lors de l'envoi du message:", error)
     isTyping.value = false
     chatStore.addMessage(
       "Désolé, une erreur s'est produite lors de la communication avec le serveur.",
-      'assistant'
+      'assistant',
     )
     scrollToBottom()
   }
 }
 
 // Watcher pour scroll automatique lors du changement de chat
-watch(currentChat, () => {
-  nextTick(() => scrollToBottom())
-}, { immediate: true })
+watch(
+  currentChat,
+  () => {
+    nextTick(() => scrollToBottom())
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -74,7 +78,9 @@ watch(currentChat, () => {
       <button class="p-2 -ml-2 text-gray-300 hover:bg-white/10 rounded-lg" type="button">
         <span class="iconify hugeicons--menu-02"></span>
       </button>
-      <span class="font-medium text-sm text-gray-200">{{ currentChat?.title || 'Nouveau chat' }}</span>
+      <span class="font-medium text-sm text-gray-200">{{
+        currentChat?.title || 'Nouveau chat'
+      }}</span>
       <button class="p-2 -mr-2 text-gray-300 hover:bg-white/10 rounded-lg" type="button">
         <span class="iconify hugeicons--add-01"></span>
       </button>

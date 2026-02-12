@@ -61,20 +61,37 @@ watch(
 
 <template>
   <teleport to="body">
-    <div v-if="authStore.isModalOpen" class="fixed inset-0 z-50">
-      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeModal"></div>
-      <div class="relative h-full flex items-center justify-center px-4">
-        <div
-          class="w-full max-w-md bg-surface-dark border border-border-dark rounded-2xl shadow-floating p-6 md:p-8"
-        >
+    <transition
+      enter-active-class="transition-opacity duration-300 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-200 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="authStore.isModalOpen" class="fixed inset-0 z-50">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeModal"></div>
+        <div class="relative h-full flex items-center justify-center px-4">
+          <transition
+            enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="opacity-0 scale-95 translate-y-4"
+            enter-to-class="opacity-100 scale-100 translate-y-0"
+            leave-active-class="transition-all duration-200 ease-in"
+            leave-from-class="opacity-100 scale-100 translate-y-0"
+            leave-to-class="opacity-0 scale-95 translate-y-4"
+          >
+            <div
+              v-if="authStore.isModalOpen"
+              class="w-full max-w-md bg-[#1a2028] border border-border-dark rounded-2xl shadow-floating p-6 md:p-8"
+            >
           <div class="flex items-start justify-between gap-4">
             <div>
-              <p class="text-xs uppercase tracking-[0.25em] font-medium text-gray-500">Compte</p>
-              <h2 class="text-3xl font-bold text-gray-100 mt-1">Bienvenue</h2>
-              <p class="text-sm text-gray-400 mt-1">Connecte-toi pour continuer.</p>
+              <p class="text-xs uppercase tracking-[0.25em] font-medium text-gray-400">Compte</p>
+              <h2 class="text-3xl font-bold text-white mt-1">Bienvenue</h2>
+              <p class="text-sm text-gray-300 mt-1">Connecte-toi pour continuer.</p>
             </div>
             <button
-              class="p-2 rounded-lg text-gray-400 hover:text-gray-200 hover:bg-white/5"
+              class="p-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10"
               type="button"
               @click="closeModal"
             >
@@ -82,13 +99,13 @@ watch(
             </button>
           </div>
 
-          <div class="mt-6 flex items-center gap-2 rounded-full bg-[#12151b] border border-border-dark p-1">
+          <div class="mt-6 flex items-center gap-2 rounded-full bg-[#0f1318] border border-white/10 p-1">
             <button
               class="flex-1 text-sm font-medium py-2 rounded-full transition-colors"
               :class="
                 activeTab === 'login'
-                  ? 'bg-primary/20 text-primary-200'
-                  : 'text-gray-400 hover:text-gray-200'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'text-gray-400 hover:text-white'
               "
               type="button"
               @click="switchTab('login')"
@@ -99,8 +116,8 @@ watch(
               class="flex-1 text-sm font-medium py-2 rounded-full transition-colors"
               :class="
                 activeTab === 'register'
-                  ? 'bg-primary/20 text-primary-200'
-                  : 'text-gray-400 hover:text-gray-200'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'text-gray-400 hover:text-white'
               "
               type="button"
               @click="switchTab('register')"
@@ -109,44 +126,36 @@ watch(
             </button>
           </div>
 
-          <div class="mt-6 flex items-center justify-between rounded-xl border border-border-dark bg-[#111419] px-4 py-3">
-            <div>
-              <p class="text-xs font-medium text-gray-500">Mode d'authentification</p>
-              <p class="text-sm font-semibold text-gray-200">
-                {{ authStore.authMode === 'session' ? 'Session' : 'JWT' }}
-              </p>
-            </div>
-            <button
-              class="text-xs uppercase tracking-wider text-primary-300 hover:text-primary"
-              type="button"
-              @click="
-                authStore.setAuthMode(authStore.authMode === 'session' ? 'jwt' : 'session')
-              "
-            >
-              Changer
-            </button>
-          </div>
-
           <p v-if="authStore.errorMessage" class="mt-4 text-sm text-red-400">
             {{ authStore.errorMessage }}
           </p>
 
-          <form v-if="activeTab === 'login'" class="mt-4 space-y-4" @submit.prevent="handleLogin">
+          <div class="overflow-hidden transition-all duration-300">
+            <transition
+              mode="out-in"
+              enter-active-class="transition-all duration-250 ease-out delay-100"
+              enter-from-class="opacity-0 translate-x-8"
+              enter-to-class="opacity-100 translate-x-0"
+              leave-active-class="transition-all duration-200 ease-in"
+              leave-from-class="opacity-100 translate-x-0"
+              leave-to-class="opacity-0 -translate-x-8"
+            >
+              <form v-if="activeTab === 'login'" key="login" class="mt-4 space-y-4" @submit.prevent="handleLogin">
             <div>
-              <label class="text-xs font-medium text-gray-500">Email ou pseudo</label>
+              <label class="text-xs font-medium text-gray-300">Email ou pseudo</label>
               <input
                 v-model="identifier"
                 type="text"
-                class="mt-2 w-full rounded-xl bg-[#0f1115] border border-border-dark px-4 py-3 text-sm text-gray-100 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
+                class="mt-2 w-full rounded-xl bg-[#0f1318] border border-white/10 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
                 placeholder="ton@email.com"
               />
             </div>
             <div>
-              <label class="text-xs font-medium text-gray-500">Mot de passe</label>
+              <label class="text-xs font-medium text-gray-300">Mot de passe</label>
               <input
                 v-model="password"
                 type="password"
-                class="mt-2 w-full rounded-xl bg-[#0f1115] border border-border-dark px-4 py-3 text-sm text-gray-100 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
+                class="mt-2 w-full rounded-xl bg-[#0f1318] border border-white/10 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
                 placeholder="••••••••"
               />
             </div>
@@ -161,42 +170,43 @@ watch(
 
           <form
             v-else
+            key="register"
             class="mt-4 space-y-4"
             @submit.prevent="handleRegister"
           >
             <div>
-              <label class="text-xs font-medium text-gray-500">Pseudo</label>
+              <label class="text-xs font-medium text-gray-300">Pseudo</label>
               <input
                 v-model="username"
                 type="text"
-                class="mt-2 w-full rounded-xl bg-[#0f1115] border border-border-dark px-4 py-3 text-sm text-gray-100 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
+                class="mt-2 w-full rounded-xl bg-[#0f1318] border border-white/10 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
                 placeholder="ton pseudo"
               />
             </div>
             <div>
-              <label class="text-xs font-medium text-gray-500">Email</label>
+              <label class="text-xs font-medium text-gray-300">Email</label>
               <input
                 v-model="email"
                 type="email"
-                class="mt-2 w-full rounded-xl bg-[#0f1115] border border-border-dark px-4 py-3 text-sm text-gray-100 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
+                class="mt-2 w-full rounded-xl bg-[#0f1318] border border-white/10 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
                 placeholder="ton@email.com"
               />
             </div>
             <div>
-              <label class="text-xs font-medium text-gray-500">Mot de passe</label>
+              <label class="text-xs font-medium text-gray-300">Mot de passe</label>
               <input
                 v-model="registerPassword"
                 type="password"
-                class="mt-2 w-full rounded-xl bg-[#0f1115] border border-border-dark px-4 py-3 text-sm text-gray-100 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
+                class="mt-2 w-full rounded-xl bg-[#0f1318] border border-white/10 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
                 placeholder="••••••••"
               />
             </div>
             <div>
-              <label class="text-xs font-medium text-gray-500">Confirmer</label>
+              <label class="text-xs font-medium text-gray-300">Confirmer</label>
               <input
                 v-model="registerPasswordConfirm"
                 type="password"
-                class="mt-2 w-full rounded-xl bg-[#0f1115] border border-border-dark px-4 py-3 text-sm text-gray-100 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
+                class="mt-2 w-full rounded-xl bg-[#0f1318] border border-white/10 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
                 placeholder="••••••••"
               />
             </div>
@@ -208,12 +218,16 @@ watch(
               {{ authStore.isLoading ? 'Creation...' : 'Creer un compte' }}
             </button>
           </form>
+            </transition>
+          </div>
 
-          <p class="mt-6 text-xs text-gray-500">
+          <p class="mt-6 text-xs text-gray-400">
             En dev, le mode session utilise les cookies et le mode JWT utilise les tokens.
           </p>
         </div>
+          </transition>
+        </div>
       </div>
-    </div>
+    </transition>
   </teleport>
 </template>

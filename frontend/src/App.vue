@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import Chat from './components/Chat.vue';
-
+import AppSidebar from './components/AppSidebar.vue'
+import ChatMain from './components/ChatMain.vue'
 </script>
 
 <template>
-  <Chat/>
+  <div class="dark h-screen flex overflow-hidden bg-background-dark text-gray-100">
+    <AppSidebar />
+    <ChatMain />
+  </div>
 </template>
 
 <style scoped></style>

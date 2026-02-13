@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+@import 'highlight.js/styles/github-dark-dimmed.css';
+
 @plugin "@iconify/tailwind4" {
   prefixes: hugeicons;
 }
@@ -75,4 +77,180 @@ html {
 
 body {
   @apply antialiased selection:bg-primary/30 selection:text-white;
+}
+
+/* ─── Markdown body styling ───────────────────────────────── */
+
+.markdown-body {
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.markdown-body p {
+  margin-bottom: 0.75em;
+}
+
+.markdown-body p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  font-weight: 600;
+  color: #e5e7eb;
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+.markdown-body h1 { font-size: 1.5em; }
+.markdown-body h2 { font-size: 1.25em; }
+.markdown-body h3 { font-size: 1.1em; }
+
+.markdown-body strong {
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.markdown-body em {
+  font-style: italic;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.75em;
+}
+
+.markdown-body ul {
+  list-style-type: disc;
+}
+
+.markdown-body ol {
+  list-style-type: decimal;
+}
+
+.markdown-body li {
+  margin-bottom: 0.25em;
+}
+
+.markdown-body li > p {
+  margin-bottom: 0.25em;
+}
+
+.markdown-body blockquote {
+  border-left: 3px solid #22c55e;
+  padding-left: 1em;
+  margin-left: 0;
+  margin-bottom: 0.75em;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.markdown-body a {
+  color: #22c55e;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown-body a:hover {
+  color: #16a34a;
+}
+
+.markdown-body hr {
+  border: none;
+  border-top: 1px solid #25303a;
+  margin: 1.5em 0;
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1em;
+  font-size: 0.9em;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid #25303a;
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+
+.markdown-body th {
+  background-color: #141a20;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+/* Inline code */
+.inline-code {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.875em;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  border: 1px solid #334155;
+}
+
+/* Code block wrapper */
+.code-block-wrapper {
+  margin: 1em 0;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid #25303a;
+  background: #161b22;
+}
+
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: #1c2333;
+  border-bottom: 1px solid #25303a;
+  font-size: 0.75rem;
+}
+
+.code-block-lang {
+  color: #8b949e;
+  font-family: sans-serif;
+  text-transform: lowercase;
+}
+
+.copy-code-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  color: #8b949e;
+  font-family: sans-serif;
+  font-size: 0.75rem;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: all 0.15s;
+}
+
+.copy-code-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+}
+
+.code-block-wrapper pre.hljs {
+  margin: 0;
+  padding: 1rem;
+  overflow-x: auto;
+  background: transparent !important;
+  border: none;
+}
+
+.code-block-wrapper pre.hljs code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
 }

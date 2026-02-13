@@ -106,7 +106,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       // Délai de dev pour simuler la latence
       await new Promise((resolve) => setTimeout(resolve, 3000))
-      
+
       if (authMode.value === 'session') {
         await getCsrfToken()
       }
@@ -127,7 +127,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       // Délai de dev pour simuler la latence
       await new Promise((resolve) => setTimeout(resolve, 3000))
-      
+
       if (authMode.value === 'jwt') {
         await loginWithJwt(payload.identifier, payload.password)
       } else {
@@ -161,7 +161,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       // Délai de dev pour simuler la latence
       await new Promise((resolve) => setTimeout(resolve, 3000))
-      
+
       if (authMode.value === 'session') {
         await logoutSession()
       }

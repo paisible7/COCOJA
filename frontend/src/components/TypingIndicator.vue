@@ -4,7 +4,7 @@ const isTyping = defineModel<boolean>('isTyping', { default: false })
 
 <template>
   <div v-if="isTyping" class="flex gap-4 message-fade-enter">
-    <div class="flex-shrink-0 mt-1">
+    <div class="shrink-0 mt-1">
       <div
         class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center ring-2 ring-background-dark"
       >

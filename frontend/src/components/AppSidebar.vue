@@ -5,6 +5,10 @@ import UserProfile from './UserProfile.vue'
 
 const chatStore = useChatStore()
 
+defineEmits<{
+  close: []
+}>()
+
 async function handleNewChat() {
   await chatStore.createNewChat()
 }
@@ -12,7 +16,7 @@ async function handleNewChat() {
 
 <template>
   <aside
-    class="w-[280px] shrink-0 bg-[#0a0c10] border-r border-border-dark flex flex-col h-full transition-all duration-300 hidden md:flex z-20"
+    class="w-70 shrink-0 bg-[#0a0c10] border-r border-border-dark flex flex-col h-full transition-all duration-300 z-20"
   >
     <div class="p-4 pt-6">
       <button

@@ -46,6 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
   function closeModal() {
     isModalOpen.value = false
     errorMessage.value = null
+    successMessage.value = null
   }
 
   function setAuthMode(mode: AuthMode) {
@@ -99,20 +100,17 @@ export const useAuthStore = defineStore('auth', () => {
   async function register(payload: { username: string; email: string; password: string }) {
     isLoading.value = true
     errorMessage.value = null
+    successMessage.value = null
 
     try {
       if (authMode.value === 'session') {
         await getCsrfToken()
       }
       await registerUser(payload)
-      if (authMode.value === 'jwt') {
-        await loginWithJwt(payload.username, payload.password)
-      } else {
-        await loginWithSession(payload.username, payload.password)
-      }
-      closeModal()
+      successMessage.value = 'Compte créé avec succès ! Connecte-toi maintenant.'
     } catch (error) {
       errorMessage.value = toErrorMessage(error)
+      throw error
     } finally {
       isLoading.value = false
     }
@@ -172,6 +170,38 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function toErrorMessage(error: unknown): string {
+    if (error && typeof error === 'object') {
+      // Axios error with response
+      if ('response' in error && error.response && typeof error.response === 'object') {
+        const response = error.response as any
+        if (response.data) {
+          // Check for detail field (common in DRF)
+          if (response.data.detail) {
+            return response.data.detail
+          }
+          // Check for non_field_errors
+          if (response.data.non_field_errors && Array.isArray(response.data.non_field_errors)) {
+            return response.data.non_field_errors.join(' ')
+          }
+          // Collect all error messages from fields
+          const messages: string[] = []
+          for (const [field, value] of Object.entries(response.data)) {
+            if (Array.isArray(value)) {
+              messages.push(...value)
+            } else if (typeof value === 'string') {
+              messages.push(value)
+            }
+          }
+          if (messages.length > 0) {
+            return messages.join(' ')
+          }
+        }
+      }
+      // Check for message property
+      if ('message' in error && typeof error.message === 'string') {
+        return error.message
+      }
+    }
     if (error instanceof Error) {
       return error.message
     }
@@ -184,6 +214,7 @@ export const useAuthStore = defineStore('auth', () => {
     isModalOpen,
     isLoading,
     errorMessage,
+    successMessage,
     authMode,
     openModal,
     closeModal,

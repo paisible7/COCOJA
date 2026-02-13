@@ -38,7 +38,18 @@ class RegisterView(APIView):
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            # Extract and format error messages
+            errors = []
+            for field, messages in serializer.errors.items():
+                for message in messages if isinstance(messages, list) else [messages]:
+                    errors.append(str(message))
+            
+            return Response(
+                {"detail": " ".join(errors) if errors else "Données invalides."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        
         user = serializer.save()
         return Response(
             {"id": user.id, "username": user.username, "email": user.email},

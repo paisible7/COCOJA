@@ -29,6 +29,8 @@ function closeModal() {
 
 function switchTab(tab: 'login' | 'register') {
   activeTab.value = tab
+  authStore.errorMessage = null
+  authStore.successMessage = null
 }
 
 async function handleLogin() {
@@ -36,11 +38,24 @@ async function handleLogin() {
 }
 
 async function handleRegister() {
-  await authStore.register({
-    username: username.value,
-    email: email.value,
-    password: registerPassword.value,
-  })
+  try {
+    await authStore.register({
+      username: username.value,
+      email: email.value,
+      password: registerPassword.value,
+    })
+    // Basculer vers l'onglet de connexion après inscription réussie
+    activeTab.value = 'login'
+    // Pré-remplir l'identifiant avec le nom d'utilisateur
+    identifier.value = username.value
+    // Réinitialiser les champs d'inscription
+    username.value = ''
+    email.value = ''
+    registerPassword.value = ''
+    registerPasswordConfirm.value = ''
+  } catch {
+    // L'erreur est déjà gérée dans le store
+  }
 }
 
 watch(
@@ -54,6 +69,8 @@ watch(
       registerPassword.value = ''
       registerPasswordConfirm.value = ''
       activeTab.value = 'login'
+      authStore.errorMessage = null
+      authStore.successMessage = null
     }
   },
 )
@@ -128,6 +145,9 @@ watch(
 
           <p v-if="authStore.errorMessage" class="mt-4 text-sm text-red-400">
             {{ authStore.errorMessage }}
+          </p>
+          <p v-if="authStore.successMessage" class="mt-4 text-sm text-green-400">
+            {{ authStore.successMessage }}
           </p>
 
           <div class="overflow-hidden transition-all duration-300">

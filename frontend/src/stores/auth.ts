@@ -183,14 +183,14 @@ export const useAuthStore = defineStore('auth', () => {
     if (error && typeof error === 'object') {
       // Axios error with response
       if ('response' in error && error.response && typeof error.response === 'object') {
-        const response = error.response as any
+        const response = error.response as { data?: Record<string, unknown> }
         if (response.data) {
           // Check for detail field (common in DRF)
-          if (response.data.detail) {
+          if ('detail' in response.data && typeof response.data.detail === 'string') {
             return response.data.detail
           }
           // Check for non_field_errors
-          if (response.data.non_field_errors && Array.isArray(response.data.non_field_errors)) {
+          if ('non_field_errors' in response.data && Array.isArray(response.data.non_field_errors)) {
             return response.data.non_field_errors.join(' ')
           }
           // Collect all error messages from fields

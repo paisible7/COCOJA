@@ -10,6 +10,7 @@ from .serializers import (
     MessageSerializer,
     MessageCreateSerializer
 )
+from .nlp_model import generate_ai_response
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
@@ -66,9 +67,36 @@ def ask_model(request):
     user_input = request.data.get('question')
     conversation_id = request.data.get('conversation_id')
     
-    # Ici tu appelles ton modèle NLP pour générer une réponse
-    # Pour l'instant, on renvoie juste un test
-    response = f"Réponse du modèle à : {user_input}"
+    if not user_input:
+        return Response(
+            {'error': 'Le champ question est requis.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Récupérer l'historique de conversation si disponible
+    conversation_history = None
+    if request.user.is_authenticated and conversation_id:
+        try:
+            conversation = Conversation.objects.get(id=conversation_id, user=request.user)
+            # Formatter les derniers messages pour le contexte
+            recent_messages = conversation.messages.all()[:10]  # Limiter à 10 derniers messages
+            conversation_history = [
+                {'role': msg.role, 'content': msg.content}
+                for msg in recent_messages
+            ]
+        except Conversation.DoesNotExist:
+            pass
+    
+    # Générer la réponse avec le modèle NLP
+    # TODO: Cette fonction utilise actuellement un mode simulation
+    # Modifiez chat/nlp_model.py pour intégrer votre modèle réel
+    try:
+        response = generate_ai_response(user_input, conversation_history)
+    except Exception as e:
+        return Response(
+            {'error': f'Erreur lors de la génération de la réponse: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
     
     # Si l'utilisateur est authentifié, sauvegarder les messages
     if request.user.is_authenticated and conversation_id:

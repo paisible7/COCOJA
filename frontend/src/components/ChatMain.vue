@@ -111,7 +111,7 @@ watch(
 
     <!-- Input -->
     <div
-      class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-background-dark via-background-dark to-transparent pb-8 pt-10 px-4 pointer-events-none"
+      class="absolute bottom-0 left-0 w-full bg-linear-to-t from-background-dark via-background-dark to-transparent pb-8 pt-10 px-4 pointer-events-none"
     >
       <div class="max-w-3xl mx-auto w-full pointer-events-auto">
         <ChatInput v-model="inputText" :is-loading="chatStore.isTyping" @send="handleSendMessage" @stop="handleStop" />

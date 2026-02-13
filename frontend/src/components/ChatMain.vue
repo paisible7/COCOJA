@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, computed, nextTick, watch, onMounted } from 'vue'
 import { useChatStore } from '@/stores/chat'
 import { useAuthStore } from '@/stores/auth'
 import MessageBubble from './MessageBubble.vue'
@@ -10,6 +10,16 @@ const chatStore = useChatStore()
 const authStore = useAuthStore()
 const inputText = ref('')
 const messagesContainer = ref<HTMLElement>()
+const inputAreaRef = ref<HTMLElement>()
+const inputAreaHeight = ref(0)
+
+function updateInputHeight() {
+  if (inputAreaRef.value) {
+    inputAreaHeight.value = inputAreaRef.value.offsetHeight
+  }
+}
+
+const bottomPadding = computed(() => `${inputAreaHeight.value + 16}px`)
 
 const messages = computed(() => chatStore.currentMessages)
 const showWelcome = computed(() => messages.value.length === 0 && !chatStore.isTyping)
@@ -116,6 +126,18 @@ watch(
   },
   { deep: true, immediate: true },
 )
+
+// Watch input text changes to recalculate input area height
+watch(inputText, () => {
+  nextTick(() => {
+    updateInputHeight()
+    scrollToBottom()
+  })
+})
+
+onMounted(() => {
+  nextTick(() => updateInputHeight())
+})
 </script>
 
 <template>
@@ -160,7 +182,7 @@ watch(
 
     <!-- Messages -->
     <div ref="messagesContainer" class="flex-1 overflow-y-auto scroll-smooth">
-      <div class="max-w-3xl mx-auto w-full px-4 md:px-6 pt-10 pb-48">
+      <div class="max-w-3xl mx-auto w-full px-4 md:px-6 pt-10" :style="{ paddingBottom: bottomPadding }">
 
         <!-- Welcome screen -->
         <div v-if="showWelcome" class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
@@ -201,6 +223,7 @@ watch(
 
     <!-- Input -->
     <div
+      ref="inputAreaRef"
       class="absolute bottom-0 left-0 w-full bg-linear-to-t from-background-dark via-background-dark to-transparent pb-8 pt-10 px-4 pointer-events-none"
     >
       <div class="max-w-3xl mx-auto w-full pointer-events-auto">

@@ -13,8 +13,12 @@ authStore.initAuth()
 
 watch(
   () => authStore.isAuthenticated,
-  (isAuth) => {
-    chatStore.loadFromStorage(isAuth)
+  async (isAuth) => {
+    if (isAuth) {
+      await chatStore.initForUser()
+    } else {
+      chatStore.resetForGuest()
+    }
   },
   { immediate: true },
 )

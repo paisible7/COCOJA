@@ -2,7 +2,6 @@
 import { ref, computed, nextTick, watch } from 'vue'
 import { useChatStore } from '@/stores/chat'
 import { useAuthStore } from '@/stores/auth'
-import { sendMessageToAI } from '@/services/api'
 import MessageBubble from './MessageBubble.vue'
 import ChatInput from './ChatInput.vue'
 import TypingIndicator from './TypingIndicator.vue'
@@ -11,9 +10,8 @@ const chatStore = useChatStore()
 const authStore = useAuthStore()
 const inputText = ref('')
 const messagesContainer = ref<HTMLElement>()
-const isTyping = ref(false)
 
-const currentChat = computed(() => chatStore.currentChat)
+const messages = computed(() => chatStore.currentMessages)
 
 function scrollToBottom() {
   if (messagesContainer.value) {
@@ -34,66 +32,30 @@ async function handleSendMessage() {
 
   if (!isAuthenticated && !chatStore.canGuestPost()) {
     authStore.openModal()
-    chatStore.addMessage(
-      `Limite de 5 essais atteinte. Connecte-toi pour continuer à discuter sans limite.`,
-      'assistant',
-      false,
-    )
-    scrollToBottom()
     return
   }
 
-  // Ajouter le message utilisateur
-  chatStore.addMessage(text, 'user', isAuthenticated)
   inputText.value = ''
-
   await nextTick()
   scrollToBottom()
 
-  // Afficher l'indicateur de frappe
-  isTyping.value = true
-  scrollToBottom()
-
   try {
-    // Envoyer à l'API Django
-    if (!isAuthenticated) {
-      chatStore.incrementGuestPostCount()
-    }
-    const aiResponse = await sendMessageToAI(text)
-
-    isTyping.value = false
-    chatStore.addMessage(aiResponse, 'assistant', isAuthenticated)
-
+    await chatStore.sendMessage(text, isAuthenticated)
     await nextTick()
     scrollToBottom()
   } catch (error) {
     console.error("Erreur lors de l'envoi du message:", error)
-    isTyping.value = false
-
-    if (!isAuthenticated) {
-      chatStore.addMessage(
-        "Tu dois te connecter pour utiliser l'IA. Clique sur ton profil en bas pour te connecter.",
-        'assistant',
-        false,
-      )
-    } else {
-      chatStore.addMessage(
-        "Désolé, une erreur s'est produite lors de la communication avec le serveur.",
-        'assistant',
-        true,
-      )
-    }
     scrollToBottom()
   }
 }
 
-// Watcher pour scroll automatique lors du changement de chat
+// Watcher pour scroll automatique lors du changement de messages
 watch(
-  currentChat,
+  messages,
   () => {
     nextTick(() => scrollToBottom())
   },
-  { immediate: true },
+  { deep: true, immediate: true },
 )
 </script>
 
@@ -107,7 +69,7 @@ watch(
         <span class="iconify hugeicons--menu-02"></span>
       </button>
       <span class="font-semibold text-base text-gray-100">{{
-        currentChat?.title || 'Nouveau chat'
+        chatStore.currentChat?.title || 'Nouveau chat'
       }}</span>
       <button class="p-2 -mr-2 text-gray-300 hover:bg-white/10 rounded-lg" type="button">
         <span class="iconify hugeicons--add-01"></span>
@@ -134,11 +96,11 @@ watch(
       <div class="max-w-3xl mx-auto w-full px-4 md:px-6 pt-10 pb-48">
         <div class="space-y-10">
           <MessageBubble
-            v-for="message in currentChat?.messages"
+            v-for="message in messages"
             :key="message.id"
             :message="message"
           />
-          <TypingIndicator v-model:is-typing="isTyping" />
+          <TypingIndicator v-model:is-typing="chatStore.isTyping" />
         </div>
       </div>
     </div>
@@ -148,7 +110,7 @@ watch(
       class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-background-dark via-background-dark to-transparent pb-8 pt-10 px-4 pointer-events-none"
     >
       <div class="max-w-3xl mx-auto w-full pointer-events-auto">
-        <ChatInput v-model="inputText" @send="handleSendMessage" />
+        <ChatInput v-model="inputText" :is-loading="chatStore.isTyping" @send="handleSendMessage" />
         <div class="flex items-center justify-center gap-4 mt-3">
           <p class="text-center text-xs text-gray-600">
             L'IA peut faire des erreurs. Vérifiez les informations importantes.

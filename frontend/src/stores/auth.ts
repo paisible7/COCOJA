@@ -30,6 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isModalOpen = ref(false)
   const isLoading = ref(false)
   const errorMessage = ref<string | null>(null)
+  const successMessage = ref<string | null>(null)
 
   const authMode = ref<AuthMode>(
     (localStorage.getItem(STORAGE_KEYS.mode) as AuthMode) || 'session',

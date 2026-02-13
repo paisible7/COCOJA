@@ -18,14 +18,79 @@ export function setAuthToken(token: string | null) {
   }
 }
 
-export async function sendMessageToAI(question: string): Promise<string> {
+export async function sendMessageToAI(question: string, conversationId?: number): Promise<string> {
   try {
-    const response = await api.post('/chat/ask/', { question })
+    const response = await api.post('/chat/ask/', { question, conversation_id: conversationId })
     return response.data.answer
   } catch (error) {
     console.error('Error sending message to AI:', error)
     throw new Error("Erreur lors de la communication avec l'API")
   }
+}
+
+// ─── Conversations API ─────────────────────────────────────────────
+
+export interface ApiConversation {
+  id: number
+  title: string
+  created_at: string
+  updated_at: string
+  message_count: number
+  last_message?: {
+    role: string
+    content: string
+    created_at: string
+  } | null
+  messages?: ApiMessage[]
+}
+
+export interface ApiMessage {
+  id: number
+  role: 'user' | 'assistant'
+  content: string
+  created_at: string
+}
+
+export async function fetchConversations(): Promise<ApiConversation[]> {
+  const response = await api.get('/chat/conversations/')
+  return response.data
+}
+
+export async function fetchConversation(id: number): Promise<ApiConversation> {
+  const response = await api.get(`/chat/conversations/${id}/`)
+  return response.data
+}
+
+export async function createConversation(title?: string): Promise<ApiConversation> {
+  const response = await api.post('/chat/conversations/', {
+    title: title || 'Nouvelle conversation',
+  })
+  return response.data
+}
+
+export async function deleteConversation(id: number): Promise<void> {
+  await api.delete(`/chat/conversations/${id}/`)
+}
+
+export async function updateConversation(
+  id: number,
+  data: { title: string },
+): Promise<ApiConversation> {
+  const response = await api.patch(`/chat/conversations/${id}/`, data)
+  return response.data
+}
+
+export async function addMessageToConversation(
+  conversationId: number,
+  data: { role: string; content: string },
+): Promise<ApiMessage> {
+  const response = await api.post(`/chat/conversations/${conversationId}/add_message/`, data)
+  return response.data
+}
+
+export async function fetchConversationMessages(conversationId: number): Promise<ApiMessage[]> {
+  const response = await api.get(`/chat/conversations/${conversationId}/messages/`)
+  return response.data
 }
 
 export async function getCsrfToken(): Promise<void> {

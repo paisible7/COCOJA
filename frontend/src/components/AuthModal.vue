@@ -87,8 +87,8 @@ watch(
       leave-to-class="opacity-0"
     >
       <div v-if="authStore.isModalOpen" class="fixed inset-0 z-50">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeModal"></div>
-        <div class="relative h-full flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div class="relative h-full flex items-center justify-center px-4" @click.self="closeModal">
           <transition
             enter-active-class="transition-all duration-300 ease-out"
             enter-from-class="opacity-0 scale-95 translate-y-4"

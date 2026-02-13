@@ -4,11 +4,13 @@ import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps<{
   modelValue: string
+  isLoading?: boolean
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
   send: []
+  stop: []
 }>()
 
 const authStore = useAuthStore()
@@ -26,7 +28,9 @@ function handleInput(event: Event) {
 function handleKeydown(event: KeyboardEvent) {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault()
-    emit('send')
+    if (!props.isLoading) {
+      emit('send')
+    }
   }
 }
 
@@ -78,7 +82,23 @@ watch(
       </div>
       <div v-else class="w-0"></div>
       <div class="flex items-center gap-3">
+        <!-- Bouton stop avec spinner pendant le chargement -->
         <button
+          v-if="isLoading"
+          @click="emit('stop')"
+          class="relative p-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors flex items-center justify-center"
+          type="button"
+          title="Arrêter"
+        >
+          <svg class="absolute inset-0 w-full h-full animate-spin" viewBox="0 0 36 36" fill="none">
+            <circle cx="18" cy="18" r="16" stroke="currentColor" stroke-width="2" class="opacity-10" />
+            <path d="M18 2a16 16 0 0 1 16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="opacity-60" />
+          </svg>
+          <span class="iconify hugeicons--stop text-[16px]"></span>
+        </button>
+        <!-- Bouton envoyer -->
+        <button
+          v-else
           @click="emit('send')"
           class="p-2 bg-primary hover:bg-primary-600 text-white rounded-lg transition-colors shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           :disabled="!modelValue.trim()"

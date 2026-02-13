@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import { useChatStore } from '@/stores/chat'
-import { useAuthStore } from '@/stores/auth'
 import ChatHistory from './ChatHistory.vue'
 import UserProfile from './UserProfile.vue'
 
 const chatStore = useChatStore()
-const authStore = useAuthStore()
 
-function handleNewChat() {
-  chatStore.createNewChat(authStore.isAuthenticated)
+async function handleNewChat() {
+  await chatStore.createNewChat()
 }
 </script>
 
 <template>
   <aside
-    class="w-[280px] flex-shrink-0 bg-[#0a0c10] border-r border-border-dark flex flex-col h-full transition-all duration-300 hidden md:flex z-20"
+    class="w-[280px] shrink-0 bg-[#0a0c10] border-r border-border-dark flex flex-col h-full transition-all duration-300 hidden md:flex z-20"
   >
     <div class="p-4 pt-6">
       <button
@@ -23,9 +21,9 @@ function handleNewChat() {
         type="button"
       >
         <span
-          class="bg-primary/20 text-primary-300 rounded-lg p-1 group-hover:bg-primary group-hover:text-white transition-colors"
+          class="flex items-center justify-center w-7 h-7 bg-primary/20 text-primary-300 rounded-lg group-hover:bg-primary group-hover:text-white transition-colors"
         >
-          <span class="iconify hugeicons--add-01 text-sm"></span>
+          <span class="iconify hugeicons--add-01 text-base"></span>
         </span>
         <span class="text-sm font-semibold text-gray-200">Nouveau chat</span>
       </button>

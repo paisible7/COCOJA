@@ -3,6 +3,8 @@ export interface Message {
   role: 'user' | 'assistant'
   text: string
   timestamp: string
+  isError?: boolean
+  model?: string
 }
 
 export interface Conversation {
@@ -12,6 +14,7 @@ export interface Conversation {
   createdAt: string
   updatedAt: string
   messageCount?: number
+  pinned?: boolean
   lastMessage?: {
     role: string
     content: string
@@ -23,4 +26,11 @@ export interface UserProfile {
   name: string
   initials: string
   plan: string
+}
+
+export interface AIModel {
+  id: string
+  name: string
+  description: string
+  icon: string
 }

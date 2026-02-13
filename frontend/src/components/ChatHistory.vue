@@ -19,6 +19,10 @@ async function handleDeleteChat(chatId: number | string) {
   }
 }
 
+function handleTogglePin(chatId: number | string) {
+  chatStore.togglePinConversation(chatId)
+}
+
 async function startRename(chatId: number | string, currentTitle: string) {
   editingChatId.value = chatId
   editTitle.value = currentTitle
@@ -49,16 +53,70 @@ function handleRenameKeydown(event: KeyboardEvent, chatId: number | string) {
 }
 
 const groupedChats = computed(() => chatStore.groupedConversations)
+const pinnedChats = computed(() => chatStore.pinnedConversations)
 const currentChatId = computed(() => chatStore.currentChatId)
 </script>
 
 <template>
   <div class="flex-1 overflow-y-auto px-3 pb-4 space-y-5">
-    <div v-if="Object.keys(groupedChats).length === 0" class="px-3 py-8 text-center">
+    <div v-if="Object.keys(groupedChats).length === 0 && pinnedChats.length === 0" class="px-3 py-8 text-center">
       <span class="iconify hugeicons--message-01 text-3xl text-gray-700 mx-auto mb-2"></span>
       <p class="text-gray-500 text-sm">Aucune conversation</p>
     </div>
 
+    <!-- Pinned conversations section -->
+    <div v-if="pinnedChats.length > 0">
+      <h3 class="px-3 text-[11px] font-semibold text-primary/70 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+        <span class="iconify hugeicons--pin text-xs"></span>
+        Épinglées
+      </h3>
+      <ul class="space-y-0.5">
+        <li v-for="chat in pinnedChats" :key="chat.id">
+          <div
+            :class="[
+              'flex items-center gap-2.5 px-3 py-2 text-sm group cursor-pointer transition-colors rounded-lg',
+              chat.id === currentChatId
+                ? 'text-white bg-white/6 border border-white/6 shadow-sm'
+                : 'text-gray-400 hover:bg-white/4 hover:text-gray-200',
+            ]"
+            @click="handleChatClick(chat.id)"
+            @dblclick.stop="startRename(chat.id, chat.title)"
+          >
+            <span
+              :class="[
+                'iconify hugeicons--pin text-[16px] shrink-0',
+                chat.id === currentChatId ? 'text-primary' : 'text-primary/50 group-hover:text-primary/70',
+              ]"
+            ></span>
+
+            <input
+              v-if="editingChatId === chat.id"
+              ref="editInput"
+              v-model="editTitle"
+              class="flex-1 text-[13px] bg-surface-dark border border-primary/50 rounded px-1.5 py-0.5 text-gray-100 outline-none focus:ring-1 focus:ring-primary/50 min-w-0"
+              @blur="confirmRename(chat.id)"
+              @keydown="handleRenameKeydown($event, chat.id)"
+              @click.stop
+            />
+            <span v-else class="truncate flex-1 text-[13px]">{{ chat.title }}</span>
+
+            <div v-if="editingChatId !== chat.id" class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+              <button class="p-1 hover:text-gray-300 transition-colors" title="Désépingler" @click.stop="handleTogglePin(chat.id)" type="button">
+                <span class="iconify hugeicons--pin-off text-sm"></span>
+              </button>
+              <button class="p-1 hover:text-primary transition-colors" title="Renommer" @click.stop="startRename(chat.id, chat.title)" type="button">
+                <span class="iconify hugeicons--pencil-edit-01 text-sm"></span>
+              </button>
+              <button class="p-1 hover:text-red-400 transition-colors" title="Supprimer" @click.stop="handleDeleteChat(chat.id)" type="button">
+                <span class="iconify hugeicons--delete-02 text-sm"></span>
+              </button>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Regular grouped conversations -->
     <div v-for="(chats, period) in groupedChats" :key="period">
       <h3 class="px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
         {{ period }}
@@ -98,6 +156,9 @@ const currentChatId = computed(() => chatStore.currentChatId)
 
             <!-- Actions -->
             <div v-if="editingChatId !== chat.id" class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+              <button class="p-1 hover:text-primary transition-colors" title="Épingler" @click.stop="handleTogglePin(chat.id)" type="button">
+                <span class="iconify hugeicons--pin text-sm"></span>
+              </button>
               <button
                 class="p-1 hover:text-primary transition-colors"
                 title="Renommer"

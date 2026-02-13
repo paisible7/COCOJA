@@ -30,9 +30,10 @@ export async function sendMessageToAI(
   question: string,
   conversationId?: number,
   config?: AxiosRequestConfig,
+  model?: string,
 ): Promise<string> {
   try {
-    const response = await api.post('/chat/ask/', { question, conversation_id: conversationId }, config)
+    const response = await api.post('/chat/ask/', { question, conversation_id: conversationId, model }, config)
     await delay(DEV_DELAY)
     return response.data.answer
   } catch (error) {
@@ -154,3 +155,17 @@ export async function refreshJwt(refresh: string): Promise<{ access: string }> {
   const response = await api.post('/auth/jwt/refresh/', { refresh })
   return response.data
 }
+
+// ─── Messages API ──────────────────────────────────────────────
+
+export async function updateMessage(messageId: number, data: { content: string }): Promise<ApiMessage> {
+  const response = await api.patch(`/chat/messages/${messageId}/`, data)
+  return response.data
+}
+
+// ─── Password Reset API ────────────────────────────────────────
+
+export async function requestPasswordReset(email: string): Promise<void> {
+  await api.post('/auth/password-reset/', { email })
+}
+

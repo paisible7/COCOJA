@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, watch, onMounted } from 'vue'
+import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { useChatStore } from '@/stores/chat'
 import { useAuthStore } from '@/stores/auth'
 import MessageBubble from './MessageBubble.vue'
@@ -103,6 +103,34 @@ async function handleRegenerate() {
   }
 }
 
+async function handleRetry() {
+  try {
+    await chatStore.retryLastMessage(authStore.isAuthenticated)
+    await nextTick()
+    scrollToBottom()
+  } catch (error) {
+    console.error('Erreur lors du retry:', error)
+  }
+}
+
+function handleEditMessage(id: string | number, text: string) {
+  chatStore.editMessageAction(id, text)
+}
+
+const showExportMenu = ref(false)
+
+function handleExport(format: 'markdown' | 'txt') {
+  chatStore.exportConversation(format)
+  showExportMenu.value = false
+}
+
+function handleClickOutside(e: MouseEvent) {
+  const target = e.target as HTMLElement
+  if (showExportMenu.value && !target.closest('[data-export-menu]')) {
+    showExportMenu.value = false
+  }
+}
+
 async function handleNewMobileChat() {
   if (authStore.isAuthenticated) {
     await chatStore.createNewChat()
@@ -137,6 +165,11 @@ watch(inputText, () => {
 
 onMounted(() => {
   nextTick(() => updateInputHeight())
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
@@ -180,6 +213,43 @@ onMounted(() => {
       </button>
     </div>
 
+    <!-- Export button for desktop when messages exist -->
+    <div
+      v-if="messages.length > 0"
+      class="absolute top-4 right-4 z-40 hidden md:block"
+      :class="{ 'right-40': !authStore.isAuthenticated }"
+    >
+      <div class="relative" data-export-menu>
+        <button
+          @click="showExportMenu = !showExportMenu"
+          class="flex items-center gap-2 px-3 py-2 bg-surface-dark hover:bg-surface-hover border border-border-dark text-gray-300 rounded-xl transition-colors"
+          type="button"
+          title="Exporter la conversation"
+        >
+          <span class="iconify hugeicons--download-04 text-lg"></span>
+        </button>
+        <transition
+          enter-active-class="transition-all duration-150 ease-out"
+          enter-from-class="opacity-0 scale-95"
+          enter-to-class="opacity-100 scale-100"
+          leave-active-class="transition-all duration-100 ease-in"
+          leave-from-class="opacity-100 scale-100"
+          leave-to-class="opacity-0 scale-95"
+        >
+          <div v-if="showExportMenu" class="absolute right-0 top-12 bg-surface-dark border border-border-dark rounded-xl shadow-floating overflow-hidden min-w-40 z-50">
+            <button @click="handleExport('markdown')" class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-surface-hover transition-colors" type="button">
+              <span class="iconify hugeicons--file-markdown text-base"></span>
+              Markdown
+            </button>
+            <button @click="handleExport('txt')" class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-surface-hover transition-colors" type="button">
+              <span class="iconify hugeicons--file-01 text-base"></span>
+              Texte brut
+            </button>
+          </div>
+        </transition>
+      </div>
+    </div>
+
     <!-- Messages -->
     <div ref="messagesContainer" class="flex-1 overflow-y-auto scroll-smooth">
       <div class="max-w-3xl mx-auto w-full px-4 md:px-6 pt-10" :style="{ paddingBottom: bottomPadding }">
@@ -215,6 +285,8 @@ onMounted(() => {
             :message="message"
             :is-last-assistant="index === lastAssistantIndex"
             @regenerate="handleRegenerate"
+            @retry="handleRetry"
+            @edit-message="handleEditMessage"
           />
           <TypingIndicator v-model:is-typing="chatStore.isTyping" />
         </div>

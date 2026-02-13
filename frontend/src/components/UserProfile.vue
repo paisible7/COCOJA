@@ -2,6 +2,10 @@
 import { computed, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 
+const props = defineProps<{
+  collapsed?: boolean
+}>()
+
 const authStore = useAuthStore()
 
 const userProfile = computed(() => authStore.user)
@@ -37,26 +41,31 @@ function cancelLogout() {
     <!-- Profil utilisateur -->
     <div class="flex items-center gap-2">
       <div
-        class="flex items-center gap-3 flex-1 min-w-0 px-2 py-2 rounded-lg text-left group cursor-pointer hover:bg-white/5 transition-colors"
+        :class="[
+          'flex items-center gap-3 min-w-0 rounded-lg text-left group cursor-pointer hover:bg-white/5 transition-colors',
+          collapsed ? 'justify-center px-1 py-2' : 'flex-1 px-2 py-2'
+        ]"
         @click="isAuthenticated ? askLogout() : openAuthModal()"
       >
         <div
-          class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-tr from-primary to-primary-600 flex items-center justify-center text-white font-bold text-xs shadow-md border border-white/10"
+          class="w-8 h-8 shrink-0 rounded-full bg-linear-to-tr from-primary to-primary-600 flex items-center justify-center text-white font-bold text-xs shadow-md border border-white/10"
         >
           {{ userProfile?.username?.slice(0, 2).toUpperCase() || 'U' }}
         </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold text-gray-200 truncate group-hover:text-primary transition-colors">
-            {{ userProfile?.username || 'Se connecter' }}
-          </p>
-          <p class="text-xs text-gray-500 truncate">
-            {{ userProfile?.email || 'Inscription rapide' }}
-          </p>
-        </div>
-        <span
-          v-if="isAuthenticated"
-          class="iconify hugeicons--logout-02 text-gray-500 group-hover:text-red-300 shrink-0 transition-colors"
-        ></span>
+        <template v-if="!collapsed">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-200 truncate group-hover:text-primary transition-colors">
+              {{ userProfile?.username || 'Se connecter' }}
+            </p>
+            <p class="text-xs text-gray-500 truncate">
+              {{ userProfile?.email || 'Inscription rapide' }}
+            </p>
+          </div>
+          <span
+            v-if="isAuthenticated"
+            class="iconify hugeicons--logout-02 text-gray-500 group-hover:text-red-300 shrink-0 transition-colors"
+          ></span>
+        </template>
       </div>
     </div>
   </div>

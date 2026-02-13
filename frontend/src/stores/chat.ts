@@ -10,6 +10,7 @@ import {
   updateConversation,
   sendMessageToAI,
   addMessageToConversation,
+  updateMessage as apiUpdateMessage,
 } from '@/services/api'
 import type { ApiConversation, ApiMessage } from '@/services/api'
 
@@ -33,6 +34,7 @@ function apiConversationToConversation(c: ApiConversation): Conversation {
     updatedAt: c.updated_at,
     messageCount: c.message_count,
     lastMessage: c.last_message,
+    pinned: false,
   }
 }
 
@@ -43,11 +45,19 @@ export const useChatStore = defineStore('chat', () => {
   const isTyping = ref(false)
   const isLoadingConversations = ref(false)
   const guestPostCount = ref(0)
+  const sidebarCollapsed = ref(false)
+  const selectedModel = ref('cocoja-default')
   let abortController: AbortController | null = null
 
   // Conversations guest (en mémoire, pas de persistence)
   const guestMessages = ref<Message[]>([])
 
+  // Available AI models
+  const availableModels = ref([
+    { id: 'cocoja-default', name: 'Cocoja', description: 'Modèle par défaut', icon: 'hugeicons--ai-chat-02' },
+    { id: 'cocoja-fast', name: 'Cocoja Fast', description: 'Réponses rapides', icon: 'hugeicons--rocket-01' },
+    { id: 'cocoja-pro', name: 'Cocoja Pro', description: 'Plus précis et détaillé', icon: 'hugeicons--stars' },
+  ])
   // Computed
   const currentChat = computed(() => {
     return conversations.value.find((c) => c.id === currentChatId.value)
@@ -75,7 +85,7 @@ export const useChatStore = defineStore('chat', () => {
       'Plus ancien': [],
     }
 
-    conversations.value.forEach((chat) => {
+    conversations.value.filter(c => !c.pinned).forEach((chat) => {
       const chatDate = new Date(chat.updatedAt)
       const chatDay = new Date(chatDate.getFullYear(), chatDate.getMonth(), chatDate.getDate())
 
@@ -98,6 +108,10 @@ export const useChatStore = defineStore('chat', () => {
     })
 
     return groups
+  })
+
+  const pinnedConversations = computed(() => {
+    return conversations.value.filter(c => c.pinned)
   })
 
   // ─── Actions pour utilisateurs authentifiés ───────────────────
@@ -228,7 +242,7 @@ export const useChatStore = defineStore('chat', () => {
     try {
       const aiResponse = await sendMessageToAI(text, conversationId, {
         signal: abortController.signal,
-      })
+      }, selectedModel.value)
       isTyping.value = false
       abortController = null
 
@@ -257,6 +271,7 @@ export const useChatStore = defineStore('chat', () => {
         role: 'assistant',
         text: "Désolé, une erreur s'est produite lors de la communication avec le serveur.",
         timestamp: new Date().toISOString(),
+        isError: true,
       }
       chat.messages.push(errorMsg)
       throw error
@@ -281,7 +296,7 @@ export const useChatStore = defineStore('chat', () => {
     try {
       const aiResponse = await sendMessageToAI(text, undefined, {
         signal: abortController.signal,
-      })
+      }, selectedModel.value)
       isTyping.value = false
       abortController = null
 
@@ -301,6 +316,7 @@ export const useChatStore = defineStore('chat', () => {
         role: 'assistant',
         text: "Tu dois te connecter pour utiliser l'IA.",
         timestamp: new Date().toISOString(),
+        isError: true,
       }
       guestMessages.value.push(errorMsg)
       throw error
@@ -338,6 +354,89 @@ export const useChatStore = defineStore('chat', () => {
     guestPostCount.value = 0
   }
 
+  // ─── Edit messages ────────────────────────────────────────────
+
+  async function editMessageAction(messageId: string | number, newText: string) {
+    const chat = currentChat.value
+    const msgs = chat ? chat.messages : guestMessages.value
+    const msg = msgs.find(m => m.id === messageId)
+    if (msg) {
+      msg.text = newText
+      if (typeof messageId === 'number') {
+        try { await apiUpdateMessage(messageId, { content: newText }) } catch (e) { console.error(e) }
+      }
+    }
+  }
+
+  // ─── Retry last message ──────────────────────────────────────
+
+  async function retryLastMessage(isAuthenticated: boolean) {
+    const msgs = currentChat.value ? currentChat.value.messages : guestMessages.value
+    // Remove last error message
+    if (msgs.length > 0 && msgs[msgs.length - 1]!.role === 'assistant') {
+      msgs.pop()
+    }
+    // Find last user message and resend
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      if (msgs[i]!.role === 'user') {
+        await sendMessage(msgs[i]!.text, isAuthenticated)
+        return
+      }
+    }
+  }
+
+  // ─── Pin / Unpin conversation ─────────────────────────────────
+
+  function togglePinConversation(chatId: number | string) {
+    const chat = conversations.value.find(c => c.id === chatId)
+    if (chat) {
+      chat.pinned = !chat.pinned
+    }
+  }
+
+  // ─── Sidebar collapse ────────────────────────────────────────
+
+  function toggleSidebarCollapse() {
+    sidebarCollapsed.value = !sidebarCollapsed.value
+  }
+
+  // ─── Export conversation ──────────────────────────────────────
+
+  function exportConversation(format: 'markdown' | 'txt') {
+    const msgs = currentChat.value ? currentChat.value.messages : guestMessages.value
+    const title = currentChat.value?.title || 'Conversation'
+    let content = ''
+
+    if (format === 'markdown') {
+      content = `# ${title}\n\n`
+      msgs.forEach(m => {
+        const label = m.role === 'user' ? '**Vous**' : '**Cocoja**'
+        content += `${label}\n\n${m.text}\n\n---\n\n`
+      })
+    } else {
+      content = `${title}\n${'='.repeat(title.length)}\n\n`
+      msgs.forEach(m => {
+        const label = m.role === 'user' ? 'Vous' : 'Cocoja'
+        content += `[${label}]\n${m.text}\n\n`
+      })
+    }
+
+    const ext = format === 'markdown' ? 'md' : 'txt'
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${title.replace(/[^a-zA-Z0-9\u00C0-\u024F ]/g, '_').substring(0, 50)}.${ext}`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  // ─── Model selection ──────────────────────────────────────────
+
+  function setModel(modelId: string) {
+    selectedModel.value = modelId
+  }
+
   return {
     // État
     conversations,
@@ -347,6 +446,10 @@ export const useChatStore = defineStore('chat', () => {
     isTyping,
     isLoadingConversations,
     groupedConversations,
+    pinnedConversations,
+    sidebarCollapsed,
+    selectedModel,
+    availableModels,
     // Actions
     createNewChat,
     createGuestChat,
@@ -360,5 +463,11 @@ export const useChatStore = defineStore('chat', () => {
     initForUser,
     resetForGuest,
     loadConversationMessages,
+    editMessageAction,
+    retryLastMessage,
+    togglePinConversation,
+    toggleSidebarCollapse,
+    exportConversation,
+    setModel,
   }
 })

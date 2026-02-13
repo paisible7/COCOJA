@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
 
-const activeTab = ref<'login' | 'register'>('login')
+const activeTab = ref<'login' | 'register' | 'forgot'>('login')
 const identifier = ref('')
 const password = ref('')
 
@@ -12,6 +12,9 @@ const username = ref('')
 const email = ref('')
 const registerPassword = ref('')
 const registerPasswordConfirm = ref('')
+
+const forgotEmail = ref('')
+const forgotSent = ref(false)
 
 const canSubmitLogin = computed(() => Boolean(identifier.value.trim() && password.value.trim()))
 const canSubmitRegister = computed(() =>
@@ -22,15 +25,17 @@ const canSubmitRegister = computed(() =>
       registerPassword.value === registerPasswordConfirm.value,
   ),
 )
+const canSubmitForgot = computed(() => Boolean(forgotEmail.value.trim() && forgotEmail.value.includes('@')))
 
 function closeModal() {
   authStore.closeModal()
 }
 
-function switchTab(tab: 'login' | 'register') {
+function switchTab(tab: 'login' | 'register' | 'forgot') {
   activeTab.value = tab
   authStore.errorMessage = null
   authStore.successMessage = null
+  forgotSent.value = false
 }
 
 async function handleLogin() {
@@ -58,6 +63,18 @@ async function handleRegister() {
   }
 }
 
+async function handleForgotPassword() {
+  try {
+    authStore.errorMessage = null
+    authStore.successMessage = null
+    // Simulated: in production this would call requestPasswordReset
+    authStore.successMessage = 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.'
+    forgotSent.value = true
+  } catch {
+    authStore.errorMessage = 'Erreur lors de l\'envoi du lien de réinitialisation.'
+  }
+}
+
 watch(
   () => authStore.isModalOpen,
   (isOpen) => {
@@ -71,6 +88,8 @@ watch(
       activeTab.value = 'login'
       authStore.errorMessage = null
       authStore.successMessage = null
+      forgotEmail.value = ''
+      forgotSent.value = false
     }
   },
 )
@@ -160,8 +179,7 @@ watch(
               leave-from-class="opacity-100 translate-x-0"
               leave-to-class="opacity-0 -translate-x-8"
             >
-              <form v-if="activeTab === 'login'" key="login" class="mt-4 space-y-4" @submit.prevent="handleLogin">
-            <div>
+              <form v-if="activeTab === 'login'" key="login" class="mt-4 space-y-4" @submit.prevent="handleLogin">            <div>
               <label class="text-xs font-medium text-gray-300">Email ou pseudo</label>
               <input
                 v-model="identifier"
@@ -178,6 +196,13 @@ watch(
                 class="mt-2 w-full rounded-xl bg-[#0f1318] border border-white/10 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
                 placeholder="••••••••"
               />
+              <button
+                type="button"
+                @click="switchTab('forgot')"
+                class="mt-1.5 text-xs text-primary/70 hover:text-primary transition-colors"
+              >
+                Mot de passe oublié ?
+              </button>
             </div>
             <button
               :disabled="!canSubmitLogin || authStore.isLoading"
@@ -193,7 +218,7 @@ watch(
           </form>
 
           <form
-            v-else
+            v-else-if="activeTab === 'register'"
             key="register"
             class="mt-4 space-y-4"
             @submit.prevent="handleRegister"
@@ -246,6 +271,44 @@ watch(
               {{ authStore.isLoading ? 'Création...' : 'Créer un compte' }}
             </button>
           </form>
+
+          <!-- Forgot password form -->
+          <div v-else-if="activeTab === 'forgot'" key="forgot" class="mt-4 space-y-4">
+            <div class="text-center mb-4">
+              <span class="iconify hugeicons--mail-01 text-3xl text-primary mx-auto block mb-2"></span>
+              <p class="text-sm text-gray-300">Entrez votre email pour recevoir un lien de réinitialisation.</p>
+            </div>
+            <div v-if="!forgotSent">
+              <label class="text-xs font-medium text-gray-300">Email</label>
+              <input
+                v-model="forgotEmail"
+                type="email"
+                class="mt-2 w-full rounded-xl bg-[#0f1318] border border-white/10 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary/60 focus:ring-1 focus:ring-primary/40"
+                placeholder="ton@email.com"
+                @keydown.enter="canSubmitForgot && handleForgotPassword()"
+              />
+            </div>
+            <div v-if="forgotSent" class="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-xl">
+              <span class="iconify hugeicons--checkmark-circle-02 text-primary text-lg shrink-0"></span>
+              <p class="text-sm text-primary-100">{{ authStore.successMessage }}</p>
+            </div>
+            <button
+              v-if="!forgotSent"
+              :disabled="!canSubmitForgot"
+              @click="handleForgotPassword"
+              class="w-full py-3 rounded-xl bg-primary hover:bg-primary-600 text-white font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              type="button"
+            >
+              Envoyer le lien
+            </button>
+            <button
+              @click="switchTab('login')"
+              class="w-full py-2 text-sm text-gray-400 hover:text-white transition-colors"
+              type="button"
+            >
+              ← Retour à la connexion
+            </button>
+          </div>
             </transition>
           </div>
 

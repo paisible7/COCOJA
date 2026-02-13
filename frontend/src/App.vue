@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import AppSidebar from './components/AppSidebar.vue'
 import ChatMain from './components/ChatMain.vue'
 import AuthModal from './components/AuthModal.vue'
@@ -8,6 +9,8 @@ import { useChatStore } from '@/stores/chat'
 
 const authStore = useAuthStore()
 const chatStore = useChatStore()
+const route = useRoute()
+const router = useRouter()
 const isMobileSidebarOpen = ref(false)
 
 function toggleMobileSidebar() {
@@ -25,11 +28,50 @@ watch(
   async (isAuth) => {
     if (isAuth) {
       await chatStore.initForUser()
+      // Sync route → store on initial load
+      const routeId = route.params.id
+      if (routeId) {
+        const id = Number(routeId)
+        if (!isNaN(id)) {
+          await chatStore.switchToChat(id)
+        }
+      }
     } else {
       chatStore.resetForGuest()
+      if (route.path !== '/') {
+        router.replace('/')
+      }
     }
   },
   { immediate: true },
+)
+
+// Sync store → route when current chat changes
+watch(
+  () => chatStore.currentChatId,
+  (chatId) => {
+    if (chatId && authStore.isAuthenticated) {
+      const targetPath = `/chat/${chatId}`
+      if (route.path !== targetPath) {
+        router.replace(targetPath)
+      }
+    } else if (!chatId && route.path !== '/') {
+      router.replace('/')
+    }
+  },
+)
+
+// Sync route → store when route changes (e.g. browser back/forward)
+watch(
+  () => route.params.id,
+  async (newId) => {
+    if (newId && authStore.isAuthenticated) {
+      const id = Number(newId)
+      if (!isNaN(id) && chatStore.currentChatId !== id) {
+        await chatStore.switchToChat(id)
+      }
+    }
+  },
 )
 
 // Close mobile sidebar when switching chat
@@ -42,7 +84,7 @@ watch(
 <template>
   <div class="dark h-screen flex overflow-hidden bg-background-dark text-gray-100">
     <!-- Desktop sidebar -->
-    <AppSidebar v-if="authStore.isAuthenticated" class="hidden md:flex" />
+    <AppSidebar v-if="authStore.isAuthenticated" class="hidden md:flex flex-col" />
 
     <!-- Mobile sidebar overlay -->
     <Teleport to="body">

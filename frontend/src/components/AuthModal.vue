@@ -181,9 +181,13 @@ watch(
             </div>
             <button
               :disabled="!canSubmitLogin || authStore.isLoading"
-              class="w-full py-3 rounded-xl bg-primary hover:bg-primary-600 text-white font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              class="w-full py-3 rounded-xl bg-primary hover:bg-primary-600 text-white font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               type="submit"
             >
+              <svg v-if="authStore.isLoading" class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
               {{ authStore.isLoading ? 'Connexion...' : 'Se connecter' }}
             </button>
           </form>
@@ -232,10 +236,14 @@ watch(
             </div>
             <button
               :disabled="!canSubmitRegister || authStore.isLoading"
-              class="w-full py-3 rounded-xl bg-primary hover:bg-primary-600 text-white font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              class="w-full py-3 rounded-xl bg-primary hover:bg-primary-600 text-white font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               type="submit"
             >
-              {{ authStore.isLoading ? 'Creation...' : 'Creer un compte' }}
+              <svg v-if="authStore.isLoading" class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              {{ authStore.isLoading ? 'Création...' : 'Créer un compte' }}
             </button>
           </form>
             </transition>

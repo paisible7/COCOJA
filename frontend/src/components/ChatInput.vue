@@ -86,25 +86,27 @@ watch(
         <button
           v-if="isLoading"
           @click="emit('stop')"
-          class="relative p-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors flex items-center justify-center"
+          class="relative w-9 h-9 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors flex items-center justify-center"
           type="button"
-          title="Arrêter"
+          title="Arrêter la génération"
         >
-          <svg class="absolute inset-0 w-full h-full animate-spin" viewBox="0 0 36 36" fill="none">
-            <circle cx="18" cy="18" r="16" stroke="currentColor" stroke-width="2" class="opacity-10" />
-            <path d="M18 2a16 16 0 0 1 16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="opacity-60" />
+          <svg class="absolute inset-0 w-9 h-9 animate-spin" viewBox="0 0 36 36" fill="none">
+            <circle cx="18" cy="18" r="16" stroke="currentColor" stroke-width="2.5" class="opacity-10" />
+            <path d="M18 2a16 16 0 0 1 16 16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="opacity-70" />
           </svg>
-          <span class="iconify hugeicons--stop text-[16px]"></span>
+          <svg class="w-3.5 h-3.5 relative" viewBox="0 0 14 14" fill="currentColor">
+            <rect x="1" y="1" width="12" height="12" rx="2" />
+          </svg>
         </button>
         <!-- Bouton envoyer -->
         <button
           v-else
           @click="emit('send')"
-          class="p-2 bg-primary hover:bg-primary-600 text-white rounded-lg transition-colors shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          class="w-9 h-9 bg-primary hover:bg-primary-600 text-white rounded-lg transition-colors shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           :disabled="!modelValue.trim()"
           type="button"
         >
-          <span class="iconify hugeicons--sent text-[20px]"></span>
+          <span class="iconify hugeicons--sent text-[18px]"></span>
         </button>
       </div>
     </div>

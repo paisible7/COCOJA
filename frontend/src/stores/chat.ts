@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Conversation, Message } from '@/types/chat'
@@ -42,6 +43,7 @@ export const useChatStore = defineStore('chat', () => {
   const isTyping = ref(false)
   const isLoadingConversations = ref(false)
   const guestPostCount = ref(0)
+  let abortController: AbortController | null = null
 
   // Conversations guest (en mémoire, pas de persistence)
   const guestMessages = ref<Message[]>([])
@@ -222,9 +224,13 @@ export const useChatStore = defineStore('chat', () => {
 
     // Envoyer à l'IA
     isTyping.value = true
+    abortController = new AbortController()
     try {
-      const aiResponse = await sendMessageToAI(text, conversationId)
+      const aiResponse = await sendMessageToAI(text, conversationId, {
+        signal: abortController.signal,
+      })
       isTyping.value = false
+      abortController = null
 
       // Ajouter la réponse côté client
       const assistantMsg: Message = {
@@ -244,6 +250,8 @@ export const useChatStore = defineStore('chat', () => {
       }
     } catch (error) {
       isTyping.value = false
+      abortController = null
+      if (axios.isCancel(error)) return
       const errorMsg: Message = {
         id: `temp-${Date.now()}`,
         role: 'assistant',
@@ -269,9 +277,13 @@ export const useChatStore = defineStore('chat', () => {
 
     // Envoyer à l'IA
     isTyping.value = true
+    abortController = new AbortController()
     try {
-      const aiResponse = await sendMessageToAI(text)
+      const aiResponse = await sendMessageToAI(text, undefined, {
+        signal: abortController.signal,
+      })
       isTyping.value = false
+      abortController = null
 
       const assistantMsg: Message = {
         id: `guest-${Date.now()}`,
@@ -282,6 +294,8 @@ export const useChatStore = defineStore('chat', () => {
       guestMessages.value.push(assistantMsg)
     } catch (error) {
       isTyping.value = false
+      abortController = null
+      if (axios.isCancel(error)) return
       const errorMsg: Message = {
         id: `guest-${Date.now()}`,
         role: 'assistant',
@@ -301,6 +315,14 @@ export const useChatStore = defineStore('chat', () => {
 
   function getGuestPostCount(): number {
     return guestPostCount.value
+  }
+
+  function stopGeneration() {
+    if (abortController) {
+      abortController.abort()
+      abortController = null
+      isTyping.value = false
+    }
   }
 
   // ─── Init / Reset ─────────────────────────────────────────────
@@ -332,6 +354,7 @@ export const useChatStore = defineStore('chat', () => {
     deleteChat,
     updateChatTitle,
     sendMessage,
+    stopGeneration,
     canGuestPost,
     getGuestPostCount,
     initForUser,

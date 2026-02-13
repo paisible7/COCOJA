@@ -1,4 +1,12 @@
 import axios from 'axios'
+import type { AxiosRequestConfig } from 'axios'
+
+// Délai de dev pour simuler la latence réseau (en ms)
+const DEV_DELAY = 3000
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 export const api = axios.create({
   baseURL: '/api',
@@ -18,11 +26,19 @@ export function setAuthToken(token: string | null) {
   }
 }
 
-export async function sendMessageToAI(question: string, conversationId?: number): Promise<string> {
+export async function sendMessageToAI(
+  question: string,
+  conversationId?: number,
+  config?: AxiosRequestConfig,
+): Promise<string> {
   try {
-    const response = await api.post('/chat/ask/', { question, conversation_id: conversationId })
+    const response = await api.post('/chat/ask/', { question, conversation_id: conversationId }, config)
+    await delay(DEV_DELAY)
     return response.data.answer
   } catch (error) {
+    if (axios.isCancel(error)) {
+      throw error
+    }
     console.error('Error sending message to AI:', error)
     throw new Error("Erreur lors de la communication avec l'API")
   }

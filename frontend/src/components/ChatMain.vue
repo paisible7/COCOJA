@@ -24,6 +24,10 @@ function scrollToBottom() {
   }
 }
 
+function handleStop() {
+  chatStore.stopGeneration()
+}
+
 async function handleSendMessage() {
   const text = inputText.value.trim()
   if (!text) return
@@ -110,9 +114,9 @@ watch(
       class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-background-dark via-background-dark to-transparent pb-8 pt-10 px-4 pointer-events-none"
     >
       <div class="max-w-3xl mx-auto w-full pointer-events-auto">
-        <ChatInput v-model="inputText" :is-loading="chatStore.isTyping" @send="handleSendMessage" />
+        <ChatInput v-model="inputText" :is-loading="chatStore.isTyping" @send="handleSendMessage" @stop="handleStop" />
         <div class="flex items-center justify-center gap-4 mt-3">
-          <p class="text-center text-xs text-gray-600">
+          <p class="hidden text-center text-xs text-gray-600">
             L'IA peut faire des erreurs. Vérifiez les informations importantes.
           </p>
           <p

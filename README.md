@@ -1,4 +1,4 @@
-# COCOJA - Chat Application with AI
+# AXIOM - Chat Application with AI
 
 Application de chat avec intelligence artificielle utilisant Django REST Framework pour le backend et Vue.js 3 pour le frontend.
 
@@ -22,11 +22,11 @@ Application de chat avec intelligence artificielle utilisant Django REST Framewo
 ## 📁 Structure du Projet
 
 ```
-cocoja/
+axiom/
 ├── manage.py                 # Django management
 ├── db.sqlite3               # Base de données
 ├── dev.sh                   # Script pour lancer les 2 serveurs
-├── cocoja/                  # Configuration Django
+├── axiom/                   # Configuration Django
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
@@ -56,7 +56,7 @@ cocoja/
 ### Backend (Django)
 
 ```bash
-cd cocoja
+cd axiom
 
 # Installer les dépendances Python
 pip install django djangorestframework django-cors-headers djangorestframework-simplejwt
@@ -82,7 +82,7 @@ npm install
 ### Option 1: Lancer les deux serveurs ensemble (Recommandé)
 
 ```bash
-# Depuis le dossier cocoja/
+# Depuis le dossier axiom/
 ./dev.sh
 ```
 
@@ -100,13 +100,13 @@ Cette commande lance :
 
 **Terminal 1 - Django:**
 ```bash
-cd cocoja
+cd axiom
 python3 manage.py runserver
 ```
 
 **Terminal 2 - Vue.js:**
 ```bash
-cd cocoja/frontend
+cd axiom/frontend
 npm run dev
 ```
 

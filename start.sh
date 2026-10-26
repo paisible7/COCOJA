@@ -5,7 +5,7 @@
 
 set -e  # Arrêter en cas d'erreur
 
-echo "🚀 Démarrage de COCOJA - Chat AI Application"
+echo "🚀 Démarrage de AXIOM - Chat AI Application"
 echo "=============================================="
 echo ""
 

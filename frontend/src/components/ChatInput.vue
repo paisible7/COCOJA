@@ -86,7 +86,7 @@ watch(
             title="Sélectionner un modèle"
           >
             <span :class="['iconify', currentModel?.icon || 'hugeicons--ai-chat-02', 'text-sm']"></span>
-            <span class="hidden sm:inline">{{ currentModel?.name || 'Cocoja' }}</span>
+            <span class="hidden sm:inline">{{ currentModel?.name || 'Axiom' }}</span>
             <span class="iconify hugeicons--arrow-down-01 text-xs"></span>
           </button>
           <transition

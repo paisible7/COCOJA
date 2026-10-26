@@ -124,7 +124,7 @@ Pour vérifier que tout fonctionne :
 
 ```bash
 # Backend
-cd /home/paisible/Desktop/NLP/cocoja
+cd /home/paisible/Desktop/NLP/axiom
 python manage.py runserver
 
 # Frontend (nouveau terminal)

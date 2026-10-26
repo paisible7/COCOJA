@@ -46,7 +46,7 @@ export const useChatStore = defineStore('chat', () => {
   const isLoadingConversations = ref(false)
   const guestPostCount = ref(0)
   const sidebarCollapsed = ref(false)
-  const selectedModel = ref('cocoja-default')
+  const selectedModel = ref('axiom-default')
   let abortController: AbortController | null = null
 
   // Conversations guest (en mémoire, pas de persistence)
@@ -54,9 +54,9 @@ export const useChatStore = defineStore('chat', () => {
 
   // Available AI models
   const availableModels = ref([
-    { id: 'cocoja-default', name: 'Cocoja', description: 'Modèle par défaut', icon: 'hugeicons--ai-chat-02' },
-    { id: 'cocoja-fast', name: 'Cocoja Fast', description: 'Réponses rapides', icon: 'hugeicons--rocket-01' },
-    { id: 'cocoja-pro', name: 'Cocoja Pro', description: 'Plus précis et détaillé', icon: 'hugeicons--stars' },
+    { id: 'axiom-default', name: 'Axiom', description: 'Modèle par défaut', icon: 'hugeicons--ai-chat-02' },
+    { id: 'axiom-fast', name: 'Axiom Fast', description: 'Réponses rapides', icon: 'hugeicons--rocket-01' },
+    { id: 'axiom-pro', name: 'Axiom Pro', description: 'Plus précis et détaillé', icon: 'hugeicons--stars' },
   ])
   // Computed
   const currentChat = computed(() => {
@@ -410,13 +410,13 @@ export const useChatStore = defineStore('chat', () => {
     if (format === 'markdown') {
       content = `# ${title}\n\n`
       msgs.forEach(m => {
-        const label = m.role === 'user' ? '**Vous**' : '**Cocoja**'
+        const label = m.role === 'user' ? '**Vous**' : '**Axiom**'
         content += `${label}\n\n${m.text}\n\n---\n\n`
       })
     } else {
       content = `${title}\n${'='.repeat(title.length)}\n\n`
       msgs.forEach(m => {
-        const label = m.role === 'user' ? 'Vous' : 'Cocoja'
+        const label = m.role === 'user' ? 'Vous' : 'Axiom'
         content += `[${label}]\n${m.text}\n\n`
       })
     }

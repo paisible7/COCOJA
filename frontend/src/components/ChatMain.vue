@@ -259,7 +259,7 @@ onUnmounted(() => {
           <div class="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-6">
             <span class="iconify hugeicons--ai-chat-02 text-primary text-3xl"></span>
           </div>
-          <h1 class="text-2xl md:text-3xl font-bold text-gray-100 mb-2">Bienvenue sur Cocoja</h1>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-100 mb-2">Bienvenue sur Axiom</h1>
           <p class="text-gray-400 text-base md:text-lg mb-10 max-w-md">
             Comment puis-je vous aider aujourd'hui ?
           </p>
